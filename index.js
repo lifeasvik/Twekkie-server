@@ -15,6 +15,13 @@ app.get("/", (req, res) => {
   });
 });
 
+app.get("/tweets", (req, res) => {
+  tweets.find().then((tweets) => {
+    res.json(tweets);
+  });
+  then;
+});
+
 function isValidTweet(validtweet) {
   return (
     validtweet.name &&
