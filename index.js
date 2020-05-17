@@ -1,13 +1,24 @@
 const express = require("express");
 const cors = require("cors");
 const monk = require("monk");
-const app = express();
-const db = monk("localhost/twekkie");
+const Filter = require("bad-words");
+const rateLimit = require("express-rate-limit");
 
+const app = express();
+
+const db = monk("localhost/twekkie");
 const tweets = db.get("tweets");
+const filter = new Filter();
 
 app.use(cors());
 app.use(express.json());
+
+app.use(
+  rateLimit({
+    windowMs: 30 * 1000, //30 seconds
+    max: 1, //limit each IP to 1 requests per windowMs
+  })
+);
 
 app.get("/", (req, res) => {
   res.json({
@@ -35,8 +46,8 @@ app.post("/tweet", (req, res) => {
   if (isValidTweet(req, res)) {
     //insert into db
     const newtweet = {
-      name: req.body.name.toString(),
-      content: req.body.content.toString(),
+      name: filter.clean(req.body.name.toString()),
+      content: filter.clean(req.body.content.toString()),
       created: new Date(),
     };
     tweets.insert(newtweet).then((createdTweet) => {
