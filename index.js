@@ -13,13 +13,6 @@ const filter = new Filter();
 app.use(cors());
 app.use(express.json());
 
-app.use(
-  rateLimit({
-    windowMs: 30 * 1000, //30 seconds
-    max: 1, //limit each IP to 1 requests per windowMs
-  })
-);
-
 app.get("/", (req, res) => {
   res.json({
     message: "Hello World",
@@ -41,6 +34,13 @@ function isValidTweet(validtweet) {
     validtweet.content.toString().trim() !== ""
   );
 }
+
+app.use(
+  rateLimit({
+    windowMs: 30 * 1000, //30 seconds
+    max: 1, //limit each IP to 1 requests per windowMs
+  })
+);
 
 app.post("/tweet", (req, res) => {
   if (isValidTweet(req, res)) {
